@@ -1,5 +1,5 @@
 ## 📑 개요
-- Issue: #123
+- Issue: #1
 - 관련 문서: [Confluence Link]
 ## 🚀 변경 사항
 - [ ]
