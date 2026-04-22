@@ -1,8 +1,17 @@
 package com.lxp.jdbc;
 
+import com.lxp.jdbc.course.core.controller.CourseController;
+import com.lxp.jdbc.course.core.model.CourseCreateRequest;
+import com.lxp.jdbc.course.core.model.CourseUpdateRequest;
+import com.lxp.jdbc.course.core.repository.CourseRepository;
+import com.lxp.jdbc.course.core.service.CourseService;
+
 import java.util.Scanner;
 
 public class Application {
+    private static final CourseController courseController =
+            new CourseController(new CourseService(new CourseRepository()));
+
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(System.in)) {
             runMainMenu(sc);
@@ -94,13 +103,13 @@ public class Application {
             String command = readCommand(sc);
             switch (command) {
                 case "1":
-                    createCourseStub(sc);
+                    createCourse(sc);
                     break;
                 case "2":
-                    getCourseStub(sc);
+                    getCourse(sc);
                     break;
                 case "3":
-                    listCoursesStub();
+                    listCourses();
                     break;
                 case "4":
                     updateCourseStub(sc);
@@ -284,33 +293,53 @@ public class Application {
         return input == null || input.isBlank() ? null : input.trim();
     }
 
-    static void createCourseStub(Scanner sc) {
-        System.out.println("TODO: CourseCreateRequest 생성 후 Controller 호출");
+    static String readRequiredText(Scanner sc, String label) {
+        while (true) {
+            System.out.print(label + ": ");
+            String input = sc.nextLine();
+            if (input != null && !input.isBlank()) {
+                return input.trim();
+            }
+            System.out.println(label + "은(는) 비워둘 수 없습니다.");
+        }
     }
 
-    static void getCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: Course 단건 조회 Controller 호출");
+    static void createCourse(Scanner sc) {
+        CourseCreateRequest request = new CourseCreateRequest();
+        request.setCourseId(readLong(sc, "course_id"));
+        request.setCourseTitle(readRequiredText(sc, "course_title"));
+        request.setDescription(readNullableText(sc, "description"));
+        request.setIsPublic(readBoolean(sc, "is_public"));
+        courseController.createCourse(request);
     }
 
-    static void listCoursesStub() {
-        System.out.println("TODO: Course 목록 조회 Controller 호출");
+    static void getCourse(Scanner sc) {
+        Long courseId = readLong(sc, "course_id");
+        courseController.getCourse(courseId);
+    }
+
+    static void listCourses() {
+        courseController.listActiveCourses();
     }
 
     static void updateCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: CourseUpdateRequest 생성 후 Controller 호출");
+        CourseUpdateRequest request = new CourseUpdateRequest();
+        request.setCourseId(readLong(sc, "course_id"));
+        request.setCourseTitle(readRequiredText(sc, "course_title"));
+        request.setDescription(readNullableText(sc, "description"));
+        request.setIsPublic(readBoolean(sc, "is_public"));
+        courseController.updateCourse(request);
     }
 
     static void softDeleteCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: Course 소프트 삭제 Controller 호출");
+        Long courseId = readLong(sc, "course_id");
+        courseController.softDeleteCourse(courseId);
     }
 
     static void toggleCoursePublicStub(Scanner sc) {
-        readLong(sc, "course_id");
-        readBoolean(sc, "is_public");
-        System.out.println("TODO: Course 공개/비공개 토글 Controller 호출");
+        Long courseId = readLong(sc, "course_id");
+        Boolean isPublic = readBoolean(sc, "is_public");
+        courseController.toggleCoursePublic(courseId, isPublic);
     }
 
     static void createSectionStub(Scanner sc) {
