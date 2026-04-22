@@ -6,6 +6,9 @@ build/
 .kotlin
 
 ### IntelliJ IDEA ###
+.idea/dataSources.xml
+.idea/gradle.xml
+.idea/sqldialects.xml
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -25,6 +28,8 @@ out/
 .settings
 .springBeans
 .sts4-cache
+.PROJECT_RULES.md
+./docs/APPLICATION_MASTER_SCREEN.md
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
