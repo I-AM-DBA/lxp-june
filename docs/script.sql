@@ -44,16 +44,3 @@ CREATE TABLE contents (
                               FOREIGN KEY (section_id)
                                   REFERENCES sections(section_id)
 );
-
--- 1. 외래키 체크 비활성화
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 2. 원하는 테이블 드랍
-DROP TABLE IF EXISTS `contents`;
-DROP TABLE IF EXISTS `sections`;
-DROP TABLE IF EXISTS `courses`;
-
--- 3. 외래키 체크 다시 활성화
-SET FOREIGN_KEY_CHECKS = 1;
-
-select * from contents;
