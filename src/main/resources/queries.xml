@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<properties>
+    <query key="course.insert">
+        INSERT INTO courses
+        (course_title, description, is_public)
+        VALUES (?, ?, ?)
+    </query>
+    <query key="course.findById">
+        SELECT course_id,
+               course_title,
+               description,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted
+        FROM courses
+        WHERE course_id = ?
+    </query>
+    <query key="course.findAllNotDeleted">
+        SELECT course_id,
+               course_title,
+               description,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted
+        FROM courses
+        WHERE is_deleted = 0
+        ORDER BY course_id DESC
+    </query>
+    <query key="course.update">
+        UPDATE courses
+        SET course_title = ?,
+            description = ?,
+            is_public = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE course_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="course.softDelete">
+        UPDATE courses
+        SET is_deleted = 1,
+            deleted_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE course_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="course.togglePublic">
+        UPDATE courses
+        SET is_public = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE course_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="course.existsActiveById">
+        SELECT COUNT(*) AS cnt
+        FROM courses
+        WHERE course_id = ?
+          AND is_deleted = 0
+    </query>
+
+    <query key="section.insert">
+        INSERT INTO sections
+        (course_id, section_title, is_public)
+        VALUES (?, ?, ?)
+    </query>
+    <query key="section.findById">
+        SELECT section_id,
+               course_id,
+               section_title,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted
+        FROM sections
+        WHERE section_id = ?
+    </query>
+    <query key="section.findByCourseIdNotDeleted">
+        SELECT section_id,
+               course_id,
+               section_title,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted
+        FROM sections
+        WHERE course_id = ?
+          AND is_deleted = 0
+        ORDER BY section_id ASC
+    </query>
+    <query key="section.update">
+        UPDATE sections
+        SET section_title = ?,
+            is_public = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE section_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="section.softDelete">
+        UPDATE sections
+        SET is_deleted = 1,
+            deleted_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE section_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="section.togglePublic">
+        UPDATE sections
+        SET is_public = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE section_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="section.existsActiveById">
+        SELECT COUNT(*) AS cnt
+        FROM sections
+        WHERE section_id = ?
+          AND is_deleted = 0
+    </query>
+
+    <query key="content.insert">
+        INSERT INTO contents
+        (section_id, content_title, content_url, time, is_public, is_free)
+        VALUES (?, ?, ?, ?, ?, ?)
+    </query>
+    <query key="content.findById">
+        SELECT contents_id,
+               section_id,
+               content_title,
+               content_url,
+               time,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted,
+               is_free
+        FROM contents
+        WHERE contents_id = ?
+    </query>
+    <query key="content.findBySectionIdNotDeleted">
+        SELECT contents_id,
+               section_id,
+               content_title,
+               content_url,
+               time,
+               created_at,
+               updated_at,
+               deleted_at,
+               is_public,
+               is_deleted,
+               is_free
+        FROM contents
+        WHERE section_id = ?
+          AND is_deleted = 0
+        ORDER BY contents_id ASC
+    </query>
+    <query key="content.update">
+        UPDATE contents
+        SET content_title = ?,
+            content_url = ?,
+            time = ?,
+            is_public = ?,
+            is_free = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE contents_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="content.softDelete">
+        UPDATE contents
+        SET is_deleted = 1,
+            deleted_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE contents_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="content.togglePublic">
+        UPDATE contents
+        SET is_public = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE contents_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="content.toggleFree">
+        UPDATE contents
+        SET is_free = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE contents_id = ?
+          AND is_deleted = 0
+    </query>
+    <query key="content.existsActiveById">
+        SELECT COUNT(*) AS cnt
+        FROM contents
+        WHERE contents_id = ?
+          AND is_deleted = 0
+    </query>
+
+</properties>
