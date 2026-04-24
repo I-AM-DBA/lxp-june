@@ -1,8 +1,27 @@
 package com.lxp.jdbc;
 
+import com.lxp.jdbc.content.controller.ContentController;
+import com.lxp.jdbc.content.model.ContentCreateRequest;
+import com.lxp.jdbc.content.model.ContentFreeChangeRequest;
+import com.lxp.jdbc.content.model.ContentPublicChangeRequest;
+import com.lxp.jdbc.content.model.ContentUpdateRequest;
+import com.lxp.jdbc.course.controller.CourseController;
+import com.lxp.jdbc.course.model.CourseCreateRequest;
+import com.lxp.jdbc.course.model.CoursePublicChangeRequest;
+import com.lxp.jdbc.course.model.CourseUpdateRequest;
+import com.lxp.jdbc.section.controller.SectionController;
+import com.lxp.jdbc.section.model.SectionCreateRequest;
+import com.lxp.jdbc.section.model.SectionPublicChangeRequest;
+import com.lxp.jdbc.section.model.SectionUpdateRequest;
+
 import java.util.Scanner;
 
 public class Application {
+
+    private static final CourseController courseController = new CourseController();
+    private static final SectionController sectionController = new SectionController();
+    private static final ContentController contentController = new ContentController();
+
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(System.in)) {
             runMainMenu(sc);
@@ -94,22 +113,22 @@ public class Application {
             String command = readCommand(sc);
             switch (command) {
                 case "1":
-                    createCourseStub(sc);
+                    createCourse(sc);
                     break;
                 case "2":
-                    getCourseStub(sc);
+                    getCourse(sc);
                     break;
                 case "3":
-                    listCoursesStub();
+                    courseController.listAllNotDeleted();
                     break;
                 case "4":
-                    updateCourseStub(sc);
+                    updateCourse(sc);
                     break;
                 case "5":
-                    softDeleteCourseStub(sc);
+                    courseController.softDelete(readLong(sc, "course_id"));
                     break;
                 case "6":
-                    toggleCoursePublicStub(sc);
+                    toggleCoursePublic(sc);
                     break;
                 case "back":
                     return;
@@ -139,22 +158,22 @@ public class Application {
             String command = readCommand(sc);
             switch (command) {
                 case "1":
-                    createSectionStub(sc);
+                    createSection(sc);
                     break;
                 case "2":
-                    getSectionStub(sc);
+                    getSection(sc);
                     break;
                 case "3":
-                    listSectionsByCourseStub(sc);
+                    sectionController.listByCourseId(readLong(sc, "course_id"));
                     break;
                 case "4":
-                    updateSectionStub(sc);
+                    updateSection(sc);
                     break;
                 case "5":
-                    softDeleteSectionStub(sc);
+                    sectionController.softDelete(readLong(sc, "section_id"));
                     break;
                 case "6":
-                    toggleSectionPublicStub(sc);
+                    toggleSectionPublic(sc);
                     break;
                 case "back":
                     return;
@@ -185,25 +204,25 @@ public class Application {
             String command = readCommand(sc);
             switch (command) {
                 case "1":
-                    createContentStub(sc);
+                    createContent(sc);
                     break;
                 case "2":
-                    getContentStub(sc);
+                    getContent(sc);
                     break;
                 case "3":
-                    listContentsBySectionStub(sc);
+                    contentController.listBySectionId(readLong(sc, "section_id"));
                     break;
                 case "4":
-                    updateContentStub(sc);
+                    updateContent(sc);
                     break;
                 case "5":
-                    softDeleteContentStub(sc);
+                    contentController.softDelete(readLong(sc, "contents_id"));
                     break;
                 case "6":
-                    toggleContentPublicStub(sc);
+                    toggleContentPublic(sc);
                     break;
                 case "7":
-                    toggleContentFreeStub(sc);
+                    toggleContentFree(sc);
                     break;
                 case "back":
                     return;
@@ -248,6 +267,99 @@ public class Application {
         }
     }
 
+    static void createCourse(Scanner sc) {
+        String title = readRequiredLine(sc, "course_title");
+        String description = readNullableText(sc, "description");
+        boolean isPublic = readBoolean(sc, "is_public");
+        CourseCreateRequest request = new CourseCreateRequest(title, description, isPublic);
+        courseController.create(request);
+    }
+
+    static void getCourse(Scanner sc) {
+        courseController.findById(readLong(sc, "course_id"));
+    }
+
+    static void updateCourse(Scanner sc) {
+        Long courseId = readLong(sc, "course_id");
+        String title = readRequiredLine(sc, "course_title");
+        String description = readNullableText(sc, "description");
+        boolean isPublic = readBoolean(sc, "is_public");
+        CourseUpdateRequest request = new CourseUpdateRequest(courseId, title, description, isPublic);
+        courseController.update(request);
+    }
+
+    static void toggleCoursePublic(Scanner sc) {
+        Long courseId = readLong(sc, "course_id");
+        boolean isPublic = readBoolean(sc, "is_public");
+        courseController.changePublic(new CoursePublicChangeRequest(courseId, isPublic));
+    }
+
+    static void createSection(Scanner sc) {
+        Long courseId = readLong(sc, "course_id");
+        String sectionTitle = readRequiredLine(sc, "section_title");
+        boolean isPublic = readBoolean(sc, "is_public");
+        SectionCreateRequest request = new SectionCreateRequest(courseId, sectionTitle, isPublic);
+        sectionController.create(request);
+    }
+
+    static void getSection(Scanner sc) {
+        sectionController.findById(readLong(sc, "section_id"));
+    }
+
+    static void updateSection(Scanner sc) {
+        Long sectionId = readLong(sc, "section_id");
+        String sectionTitle = readRequiredLine(sc, "section_title");
+        boolean isPublic = readBoolean(sc, "is_public");
+        SectionUpdateRequest request = new SectionUpdateRequest(sectionId, sectionTitle, isPublic);
+        sectionController.update(request);
+    }
+
+    static void toggleSectionPublic(Scanner sc) {
+        Long sectionId = readLong(sc, "section_id");
+        boolean isPublic = readBoolean(sc, "is_public");
+        sectionController.changePublic(new SectionPublicChangeRequest(sectionId, isPublic));
+    }
+
+    static void createContent(Scanner sc) {
+        Long sectionId = readLong(sc, "section_id");
+        String contentTitle = readRequiredLine(sc, "content_title");
+        String contentUrl = readRequiredLine(sc, "content_url");
+        Integer time = readOptionalInteger(sc, "time(초)");
+        boolean isPublic = readBoolean(sc, "is_public");
+        boolean isFree = readBoolean(sc, "is_free");
+        ContentCreateRequest request =
+                new ContentCreateRequest(sectionId, contentTitle, contentUrl, time, isPublic, isFree);
+        contentController.create(request);
+    }
+
+    static void getContent(Scanner sc) {
+        contentController.findById(readLong(sc, "contents_id"));
+    }
+
+    static void updateContent(Scanner sc) {
+        Long contentsId = readLong(sc, "contents_id");
+        String contentTitle = readRequiredLine(sc, "content_title");
+        String contentUrl = readRequiredLine(sc, "content_url");
+        Integer time = readOptionalInteger(sc, "time(초)");
+        boolean isPublic = readBoolean(sc, "is_public");
+        boolean isFree = readBoolean(sc, "is_free");
+        ContentUpdateRequest request =
+                new ContentUpdateRequest(contentsId, contentTitle, contentUrl, time, isPublic, isFree);
+        contentController.update(request);
+    }
+
+    static void toggleContentPublic(Scanner sc) {
+        Long contentsId = readLong(sc, "contents_id");
+        boolean isPublic = readBoolean(sc, "is_public");
+        contentController.changePublic(new ContentPublicChangeRequest(contentsId, isPublic));
+    }
+
+    static void toggleContentFree(Scanner sc) {
+        Long contentsId = readLong(sc, "contents_id");
+        boolean isFree = readBoolean(sc, "is_free");
+        contentController.changeFree(new ContentFreeChangeRequest(contentsId, isFree));
+    }
+
     static String readCommand(Scanner sc) {
         return sc.nextLine().trim().toLowerCase();
     }
@@ -284,98 +396,30 @@ public class Application {
         return input == null || input.isBlank() ? null : input.trim();
     }
 
-    static void createCourseStub(Scanner sc) {
-        System.out.println("TODO: CourseCreateRequest 생성 후 Controller 호출");
+    static String readRequiredLine(Scanner sc, String label) {
+        while (true) {
+            System.out.print(label + ": ");
+            String line = sc.nextLine();
+            String trimmed = line == null ? "" : line.trim();
+            if (!trimmed.isEmpty()) {
+                return trimmed;
+            }
+            System.out.println("비울 수 없습니다.");
+        }
     }
 
-    static void getCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: Course 단건 조회 Controller 호출");
-    }
-
-    static void listCoursesStub() {
-        System.out.println("TODO: Course 목록 조회 Controller 호출");
-    }
-
-    static void updateCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: CourseUpdateRequest 생성 후 Controller 호출");
-    }
-
-    static void softDeleteCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: Course 소프트 삭제 Controller 호출");
-    }
-
-    static void toggleCoursePublicStub(Scanner sc) {
-        readLong(sc, "course_id");
-        readBoolean(sc, "is_public");
-        System.out.println("TODO: Course 공개/비공개 토글 Controller 호출");
-    }
-
-    static void createSectionStub(Scanner sc) {
-        System.out.println("TODO: SectionCreateRequest 생성 후 Controller 호출");
-    }
-
-    static void getSectionStub(Scanner sc) {
-        readLong(sc, "section_id");
-        System.out.println("TODO: Section 단건 조회 Controller 호출");
-    }
-
-    static void listSectionsByCourseStub(Scanner sc) {
-        readLong(sc, "course_id");
-        System.out.println("TODO: Course별 Section 목록 조회 Controller 호출");
-    }
-
-    static void updateSectionStub(Scanner sc) {
-        readLong(sc, "section_id");
-        System.out.println("TODO: SectionUpdateRequest 생성 후 Controller 호출");
-    }
-
-    static void softDeleteSectionStub(Scanner sc) {
-        readLong(sc, "section_id");
-        System.out.println("TODO: Section 소프트 삭제 Controller 호출");
-    }
-
-    static void toggleSectionPublicStub(Scanner sc) {
-        readLong(sc, "section_id");
-        readBoolean(sc, "is_public");
-        System.out.println("TODO: Section 공개/비공개 토글 Controller 호출");
-    }
-
-    static void createContentStub(Scanner sc) {
-        System.out.println("TODO: ContentCreateRequest 생성 후 Controller 호출");
-    }
-
-    static void getContentStub(Scanner sc) {
-        readLong(sc, "contents_id");
-        System.out.println("TODO: Content 단건 조회 Controller 호출");
-    }
-
-    static void listContentsBySectionStub(Scanner sc) {
-        readLong(sc, "section_id");
-        System.out.println("TODO: Section별 Content 목록 조회 Controller 호출");
-    }
-
-    static void updateContentStub(Scanner sc) {
-        readLong(sc, "contents_id");
-        System.out.println("TODO: ContentUpdateRequest 생성 후 Controller 호출");
-    }
-
-    static void softDeleteContentStub(Scanner sc) {
-        readLong(sc, "contents_id");
-        System.out.println("TODO: Content 소프트 삭제 Controller 호출");
-    }
-
-    static void toggleContentPublicStub(Scanner sc) {
-        readLong(sc, "contents_id");
-        readBoolean(sc, "is_public");
-        System.out.println("TODO: Content 공개/비공개 토글 Controller 호출");
-    }
-
-    static void toggleContentFreeStub(Scanner sc) {
-        readLong(sc, "contents_id");
-        readBoolean(sc, "is_free");
-        System.out.println("TODO: Content 무료/유료 토글 Controller 호출");
+    static Integer readOptionalInteger(Scanner sc, String label) {
+        while (true) {
+            System.out.print(label + " (비우면 null): ");
+            String input = sc.nextLine().trim();
+            if (input.isEmpty()) {
+                return null;
+            }
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("정수만 입력 가능합니다.");
+            }
+        }
     }
 }
